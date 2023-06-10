@@ -1,8 +1,4 @@
 classes= 80
-train  = /home/sascott7/darknet/data/coco/path.txt
-#valid  = coco_testdev
-valid = /home/sascott7/darknet/valpath.txt
-names = /home/sascott7/darknet/data/coco.names
-backup = /home/sascott7/darknet/backup
+names = yolo/data/coco.names
 eval=coco
 

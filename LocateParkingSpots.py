@@ -5,8 +5,7 @@ from PIL import Image, ImageDraw
 import os
 import sys
 
-sys.path.append("../")
-import darknet as dn
+from yolo import darknet as dn
 
 
 #this function runs yolo
@@ -15,8 +14,8 @@ def detectFolder(imagesFolder):
     sys.path.append(os.path.join(os.getcwd(),'python/'))
 
     dn.set_gpu(0)
-    net = dn.load_net(b"cfg/yolov3.cfg", b"yolov3.weights", 0)
-    meta = dn.load_meta(b"cfg/coco.data")
+    net = dn.load_net(b"yolo/cfg/yolov3.cfg", b"yolo/yolov3.weights", 0)
+    meta = dn.load_meta(b"yolo/cfg/coco.data")
 
     #open file that we are saving detections to
     # file = open(labelsPath, "w")

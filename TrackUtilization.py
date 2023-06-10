@@ -2,8 +2,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 import sys
 import os
-sys.path.append("../")
-import darknet as dn
+from yolo import darknet as dn
 import math
 
 def detect(imagePath, net, meta):
@@ -131,8 +130,8 @@ def main():
 
     #yolo required 
     dn.set_gpu(0)
-    net = dn.load_net(b"cfg/yolov3.cfg", b"yolov3.weights", 0)
-    meta = dn.load_meta(b"cfg/coco.data")
+    net = dn.load_net(b"yolo/cfg/yolov3.cfg", b"yolo/yolov3.weights", 0)
+    meta = dn.load_meta(b"yolo/cfg/coco.data")
 
 
     numArgs = len(sys.argv)
