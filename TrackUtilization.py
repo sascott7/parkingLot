@@ -1,33 +1,34 @@
 import numpy as np
 from PIL import Image, ImageDraw
+import argparse
+
 import sys
 import os
-from yolo import darknet as dn
 import math
 
-def detect(imagePath, net, meta):
-    # dn.set_gpu(0)
-    # net = dn.load_net(b"../cfg/yolov3.cfg", b"../yolov3.weights", 0)
-    # meta = dn.load_meta(b"../cfg/coco.data")
+from yolo import darknet as dn
+import utility
 
-    detectname = bytes(imagePath, "utf-8")
-    r = dn.detect(net, meta, detectname)
+def main():
+    dn.set_gpu(0)
+    net = dn.load_net(b"yolo/cfg/yolov3.cfg", b"yolo/yolov3.weights", 0)
+    meta = dn.load_meta(b"yolo/cfg/coco.data")
 
-    return r.splitlines()
+    args = parseArguments()
+    
+    parkingLocationsPath = args.parkingLocationsPath
+    imagesFolder = args.imagesFolder
+    saveFolder = args.saveFolder
 
-def createArray(filePath):
-    readFile = open(filePath, "r")
-    lineList = readFile.readlines()
-    arr = []
-    for line in lineList:
-        words = line.split()
-        if words[0] == "2" or words[0] == "7":
-            arr.append([float(words[1]), float(words[2])])
-    readFile.close()
+    parkingLocations = np.load(parkingLocationsPath)
 
-    arr = np.asarray(arr)
-
-    return arr
+    for image in os.listdir(imagesFolder):
+        imageName = image[:-4]
+        imagePath = imagesFolder + "/" + image
+        saveImagePath = saveFolder + "/" + imageName + "_utilization.jpg"
+        detections = utility.detect(imagePath, net, meta)
+        detections = utility.createArray(detections)
+        determineUtilization(parkingLocations, detections, imagePath, saveImagePath)
 
 def determineUtilization(parkingLocations, detections, imagePath, saveImagePath):
     spotFull = [False] * len(parkingLocations)  #list of parking locations full or empty
@@ -102,86 +103,12 @@ def determineUtilization(parkingLocations, detections, imagePath, saveImagePath)
     # return spotFull
     return len(fullSpots)/(len(fullSpots) + len(emptySpots))
 
-def createArray(detectionList):
-
-    #open detections file
-    # readFile = open(filePath, "r")
-    #adds each line of file to list as list element 
-    # lineList = readFile.readlines()
-    #list to hold coordinates
-    arr = []
-    for line in detectionList:
-        if line != []:
-        #split() breaks line on space
-            words = line.split()
-            # print(words)
-            # print("\n..........\n")
-            if words[0] == "2" or words[0] == "7":
-                #if valid argument, add elements to list
-                arr.append([float(words[1]), float(words[2])])
-    # readFile.close()
-
-    #converting list to numpy array for function requirements
-    arr = np.asarray(arr)
-
-    return arr
-
-def main():
-
-    #yolo required 
-    dn.set_gpu(0)
-    net = dn.load_net(b"yolo/cfg/yolov3.cfg", b"yolo/yolov3.weights", 0)
-    meta = dn.load_meta(b"yolo/cfg/coco.data")
-
-
-    numArgs = len(sys.argv)
-    if numArgs != 4:
-        print("Usage: python3 Utilization.py 'pathToParkingLocations.npy' 'pathToImagesFolder' 'pathToSaveFolder'")
-        return
-    
-    parkingLocationsPath = sys.argv[1]
-    imagesFolder = sys.argv[2]
-    saveFolder = sys.argv[3]
-
-    parkingLocations = np.load(parkingLocationsPath)
-
-    for image in os.listdir(imagesFolder):
-        imageName = image[:-4]
-        imagePath = imagesFolder + "/" + image
-        saveImagePath = saveFolder + "/" + imageName + "_utilization.jpg"
-        detections = detect(imagePath, net, meta)
-        detections = createArray(detections)
-        determineUtilization(parkingLocations, detections, imagePath, saveImagePath)
-
-    # # image
-    # #get path to image you want utilizaton of 
-    # imagePath = directoryPath + "/image.jpg"
-    # #save marked up image
-    # saveImagePath = directoryPath + "/utilization.png"
-    # #run yolo on the single image
-    # detections = detect(imagePath, net, meta)
-    # #saving single detections 
-    # detectionPath = directoryPath + "/singleDetection.txt"
-    # file = open(detectionPath, "w")
-    # file.write(detections)
-    # file.close()
-    # #create array from single detection file 
-    # detections = createArray(detectionPath)
-
-    # print(determineUtilization(parkingLocations, detections, imagePath, saveImagePath))
-
-    # # image2
-    # imagePath = directoryPath + "/image2.jpg"
-    # saveImagePath = directoryPath + "/utilization2.png"
-    # detections = detect(imagePath, net, meta)
-    # detectionPath = directoryPath + "/singleDetection2.txt"
-    # file = open(detectionPath, "w")
-    # file.write(detections)
-    # file.close()
-    # detections = createArray(detectionPath)
-    # print(determineUtilization(parkingLocations, detections, imagePath, saveImagePath))
-
-    
+def parseArguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('parkingLocationsPath', help='path to .npy parking lot location file')
+    parser.add_argument('imagesFolder', help='path to images to track utilization')
+    parser.add_argument('-d', '--directory', dest='saveFolder', help='Folder to save information')
+    return parser.parse_args()
 
 if __name__=="__main__":
     main()
