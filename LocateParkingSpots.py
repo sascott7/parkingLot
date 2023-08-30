@@ -14,16 +14,19 @@ def main():
     saveFolder = args.saveFolder
     imagePath = args.imagePath
 
-    print("Running Detections")
+    print("Detecting Vehicles...")
     detections = detectFolder(imagesFolder)
     array = utility.createArray(detections)
 
-    print("Running Algorithms")  
+    print("Locating Parking Spots...")
     results = RunAgglomerative(0.3, array, imagePath)
 
+    print("Saving Parking Spots...")
     parkingLocationsPath = saveFolder + "/parkingLocations.npy"    
     parkingLocations = np.asarray(results)
     np.save(parkingLocationsPath, parkingLocations)
+
+    print("Done")
 
 
 #this function runs yolo
