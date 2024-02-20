@@ -4,11 +4,14 @@ from PIL import Image, ImageDraw
 import argparse
 
 import os
+import time
+from datetime import datetime
 
 from yolo import darknet as dn
 import utility
 
 def main():
+    start = datetime.now()
     args = parseArguments()
     imagesFolder = args.imagesFolder
     saveFolder = args.saveFolder
@@ -17,6 +20,8 @@ def main():
     print("Detecting Vehicles...")
     detections = detectFolder(imagesFolder)
     array = utility.createArray(detections)
+    detectTime = datetime.now()
+    print("Detection Duration: {}".format(detectTime - start))
 
     print("Locating Parking Spots...")
     results = RunAgglomerative(0.3, array, imagePath)
@@ -26,7 +31,9 @@ def main():
     parkingLocations = np.asarray(results)
     np.save(parkingLocationsPath, parkingLocations)
 
+    end = datetime.now()
     print("Done")
+    print("Duration: {}".format(end - start))
 
 
 #this function runs yolo
