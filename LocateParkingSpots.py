@@ -2,12 +2,11 @@ import numpy as np
 from sklearn.cluster import AgglomerativeClustering
 from PIL import Image, ImageDraw
 import argparse
+import torch
 
 import os
-import time
 from datetime import datetime
 
-from yolo import darknet as dn
 import utility
 
 def main():
@@ -24,7 +23,7 @@ def main():
     print("Detection Duration: {}".format(detectTime - start))
 
     print("Locating Parking Spots...")
-    results = RunAgglomerative(0.3, array, imagePath)
+    results = RunAgglomerative(0.6, array, imagePath)
 
     print("Saving Parking Spots...")
     parkingLocationsPath = saveFolder + "/parkingLocations.npy"    
@@ -38,16 +37,22 @@ def main():
 
 #this function runs yolo
 def detectFolder(imagesFolder):
-    dn.set_gpu(0)
-    net = dn.load_net(b"yolo/cfg/yolov3.cfg", b"yolo/yolov3.weights", 0)
-    meta = dn.load_meta(b"yolo/cfg/coco.data")
-
+    model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True, device=0, _verbose=False)
     files = os.listdir(imagesFolder)
     detections = []
-    for pictureName in files:
-        detectname = imagesFolder + "/" + pictureName
-        detections = detections + utility.detect(detectname, net, meta)
-
+    for file in files:
+        img = Image.open(os.path.join(imagesFolder, file))
+        width = img.width
+        height = img.height
+        model.classes = [2, 7]
+        results = model(img)
+        results_df = results.pandas().xyxy[0]
+        for i in results_df.index:
+            center_x = ((results_df['xmax'][i] + results_df['xmin'][i]) / 2) / width
+            center_y = ((results_df['ymax'][i] + results_df['ymin'][i]) / 2) / height
+            detection_class = results_df['class'][i]
+            detection = [str(detection_class) + " " + str(center_x) + " " + str(center_y)]
+            detections = detections + detection
     return detections
 
 def RunAgglomerative(distance_threshold, array, image):

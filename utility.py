@@ -1,5 +1,4 @@
 import numpy as np
-from yolo import darknet as dn
 
 def createArray(detectionList):
     arr = []
@@ -11,8 +10,3 @@ def createArray(detectionList):
                 arr.append([float(words[1]), float(words[2])])
     arr = np.asarray(arr)
     return arr
-
-def detect(path, net, meta):
-    detectname = bytes(path, "utf-8")
-    r = dn.detect(net, meta, detectname)
-    return r.splitlines()

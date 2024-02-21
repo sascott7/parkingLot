@@ -1,4 +1,0 @@
-*.c filter=lfs diff=lfs merge=lfs -text
-*.h filter=lfs diff=lfs merge=lfs -text
-*.cfg filter=lfs diff=lfs merge=lfs -text
-*.py filter=lfs diff=lfs merge=lfs -text
