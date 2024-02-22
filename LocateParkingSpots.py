@@ -23,7 +23,7 @@ def main():
     print("Detection Duration: {}".format(detectTime - start))
 
     print("Locating Parking Spots...")
-    results = RunAgglomerative(0.6, array, imagePath)
+    results = RunAgglomerative(0.3, array, imagePath)
 
     print("Saving Parking Spots...")
     parkingLocationsPath = saveFolder + "/parkingLocations.npy"    
