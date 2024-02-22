@@ -1,4 +1,0 @@
-classes= 80
-names = yolo/data/coco.names
-eval=coco
-
