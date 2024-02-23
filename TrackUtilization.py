@@ -13,19 +13,14 @@ def main():
     args = parseArguments()
     
     parkingLocationsPath = args.parkingLocationsPath
-    imagePath = args.imagesFolder
+    imagesPath = args.imagesFolder
     saveFolder = args.saveFolder
 
     parkingLocations = np.load(parkingLocationsPath)
 
-    if args.d:
-        for image in os.listdir(imagePath):
-            imageName = image[:-4]
-            singleImagePath = os.path.join(imagePath, image)
-            saveImagePath = saveFolder + "/" + imageName + "_utilization.jpg"
-            determineUtilization(parkingLocations, singleImagePath, saveImagePath)
-    else:
-        imageName = imagePath[:-4]
+    for image in os.listdir(imagesPath):
+        imageName = image[:-4]
+        imagePath = os.path.join(imagesPath, image)
         saveImagePath = saveFolder + "/" + imageName + "_utilization.jpg"
         determineUtilization(parkingLocations, imagePath, saveImagePath)
 
@@ -112,9 +107,8 @@ def calculateUtilizationRate(parkingLocations, detections, imagePath, saveImageP
 def parseArguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('parkingLocationsPath', help='path to .npy parking lot location file')
-    parser.add_argument('imagePath', help='path to image or folder of images to track utilization')
+    parser.add_argument('imagesPath', help='path to image or folder of images to track utilization')
     parser.add_argument('-s', '--save', dest='saveFolder', help='Folder to save information')
-    parser.add_argument('-d', '--directory', action='store_true')
     return parser.parse_args()
 
 if __name__=="__main__":
