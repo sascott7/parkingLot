@@ -37,22 +37,13 @@ def main():
 
 #this function runs yolo
 def detectFolder(imagesFolder):
-    model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True, device=0, _verbose=False)
+    model = utility.load_model()
     files = os.listdir(imagesFolder)
     detections = []
     for file in files:
         img = Image.open(os.path.join(imagesFolder, file))
-        width = img.width
-        height = img.height
-        model.classes = [2, 7]
-        results = model(img)
-        results_df = results.pandas().xyxy[0]
-        for i in results_df.index:
-            center_x = ((results_df['xmax'][i] + results_df['xmin'][i]) / 2) / width
-            center_y = ((results_df['ymax'][i] + results_df['ymin'][i]) / 2) / height
-            detection_class = results_df['class'][i]
-            detection = [str(detection_class) + " " + str(center_x) + " " + str(center_y)]
-            detections = detections + detection
+        img_detections = utility.detect(img, model)
+        detections = detections + img_detections
     return detections
 
 def RunAgglomerative(distance_threshold, array, image):
@@ -128,7 +119,7 @@ def RunAgglomerative(distance_threshold, array, image):
 def parseArguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('imagesFolder', help='Images directory')
-    parser.add_argument('-d', '--directory', dest='saveFolder', help='Directory to save information')
+    parser.add_argument('-s', '--save', dest='saveFolder', help='Directory to save information')
     parser.add_argument('-i', '--image', dest='imagePath', help='Image to plot parking spots')
     return parser.parse_args()
 
