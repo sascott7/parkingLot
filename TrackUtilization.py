@@ -1,36 +1,42 @@
 import numpy as np
 from PIL import Image, ImageDraw
 import argparse
+import torch
 
 import sys
 import os
 import math
 
-from yolo import darknet as dn
 import utility
 
 def main():
-    dn.set_gpu(0)
-    net = dn.load_net(b"yolo/cfg/yolov3.cfg", b"yolo/yolov3.weights", 0)
-    meta = dn.load_meta(b"yolo/cfg/coco.data")
-
     args = parseArguments()
     
     parkingLocationsPath = args.parkingLocationsPath
-    imagesFolder = args.imagesFolder
+    imagePath = args.imagesFolder
     saveFolder = args.saveFolder
 
     parkingLocations = np.load(parkingLocationsPath)
 
-    for image in os.listdir(imagesFolder):
-        imageName = image[:-4]
-        imagePath = imagesFolder + "/" + image
+    if args.d:
+        for image in os.listdir(imagePath):
+            imageName = image[:-4]
+            singleImagePath = os.path.join(imagePath, image)
+            saveImagePath = saveFolder + "/" + imageName + "_utilization.jpg"
+            determineUtilization(parkingLocations, singleImagePath, saveImagePath)
+    else:
+        imageName = imagePath[:-4]
         saveImagePath = saveFolder + "/" + imageName + "_utilization.jpg"
-        detections = utility.detect(imagePath, net, meta)
-        detections = utility.createArray(detections)
-        determineUtilization(parkingLocations, detections, imagePath, saveImagePath)
+        determineUtilization(parkingLocations, imagePath, saveImagePath)
 
-def determineUtilization(parkingLocations, detections, imagePath, saveImagePath):
+def determineUtilization(parkingLocations, imagePath, saveImagePath):
+    model = utility.load_model()
+    img = Image.open(imagePath)
+    detections = utility.detect(img, model)
+    detections = utility.createArray(detections)
+    calculateUtilizationRate(parkingLocations, detections, imagePath, saveImagePath)
+
+def calculateUtilizationRate(parkingLocations, detections, imagePath, saveImagePath):
     spotFull = [False] * len(parkingLocations)  #list of parking locations full or empty
     assignment = [-1] * len(detections) #list to match the detections in the image and the index of the parking spot to which they belong
     distance = [0] * len(detections)    #list of the distance between the detection and the parking spot to which it is assigned
@@ -106,8 +112,9 @@ def determineUtilization(parkingLocations, detections, imagePath, saveImagePath)
 def parseArguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('parkingLocationsPath', help='path to .npy parking lot location file')
-    parser.add_argument('imagesFolder', help='path to images to track utilization')
-    parser.add_argument('-d', '--directory', dest='saveFolder', help='Folder to save information')
+    parser.add_argument('imagePath', help='path to image or folder of images to track utilization')
+    parser.add_argument('-s', '--save', dest='saveFolder', help='Folder to save information')
+    parser.add_argument('-d', '--directory', action='store_true')
     return parser.parse_args()
 
 if __name__=="__main__":
