@@ -32,7 +32,7 @@ $ python LocateParkingSpots.py path_to_images_directory
 ```
 Optional arguments:
 
--d path to directory to save files
+-s path to directory to save files
 
 -i path to image to draw parking spot locations and detections
 
@@ -47,7 +47,7 @@ $  python TrackUtilization.py path_to_saved_np_array_location path_to_images_dir
 
 Optional arguments:
 
--d path to directory to save files
+-s path to directory to save files
 
 ### Capture
 
