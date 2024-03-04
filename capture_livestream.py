@@ -39,4 +39,4 @@ while True:
     filename = saveFolder + "/" + picDate + ".jpg"
     cv2.imwrite(filename, img)
     cap.close()
-    time.sleep(120)
+    time.sleep(600)

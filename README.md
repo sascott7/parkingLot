@@ -51,7 +51,7 @@ Optional arguments:
 
 ### Capture
 
-The capture script will save images from a youtube livestream every two minutes. 
+The capture script will save images from a youtube livestream every ten minutes. 
 
 The script is run with the following:
 ```

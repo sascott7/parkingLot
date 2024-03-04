@@ -23,7 +23,7 @@ def main():
     print("Detection Duration: {}".format(detectTime - start))
 
     print("Locating Parking Spots...")
-    results = RunAgglomerative(0.3, array, imagePath)
+    results = RunAgglomerative(0.7, array, imagePath)
 
     print("Saving Parking Spots...")
     parkingLocationsPath = saveFolder + "/parkingLocations.npy"    
@@ -91,7 +91,7 @@ def RunAgglomerative(distance_threshold, array, image):
         center_point = [(total_sum_x/num_cars), (total_sum_y/num_cars)]        
 
         #need at least 100 detections to consider as a parking spot 
-        if(num_cars > 100):
+        if(num_cars > 300):
             large_clusters.append(center_point)
         else:
             small_clusters.append(center_point)
@@ -109,7 +109,7 @@ def RunAgglomerative(distance_threshold, array, image):
             x = point[0] * img.width
             y = point[1] * img.height
             draw = ImageDraw.Draw(img)
-            location = [x, y, x+5, y+5]
+            location = [x-5, y-5, x+5, y+5]
             draw.ellipse(location, fill = (0, 255, 0))
         imageSavePath = image[:-4] + "_clustering.png"
         img.save(imageSavePath)
