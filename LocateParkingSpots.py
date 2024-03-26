@@ -15,6 +15,8 @@ def main():
     imagesFolder = args.imagesFolder
     saveFolder = args.saveFolder
     imagePath = args.imagePath
+    if saveFolder == None:
+        saveFolder = imagesFolder
 
     print("Detecting Vehicles...")
     detections = detectFolder(imagesFolder)
@@ -63,7 +65,7 @@ def RunAgglomerative(distance_threshold, array, image):
     for point in range(len(labels)):
         #assigning indivual points to cluster number
         cluster_number = labels[point]
-        #putting our detections from yoloy into car info one at a time
+        #putting our detections from yolo into car info one at a time
         car_info = [array[point][0], array[point][1]]
         #declaring index for start of list of labels  
         if(points_by_cluster[cluster_number] == None):
@@ -96,7 +98,7 @@ def RunAgglomerative(distance_threshold, array, image):
         else:
             small_clusters.append(center_point)
 
-    if image != "None":
+    if image != None:
         img = Image.open(image)
         for point in array:
             x = point[0] * img.width

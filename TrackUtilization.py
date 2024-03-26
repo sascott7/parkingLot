@@ -22,14 +22,15 @@ def main():
         imageName = image[:-4]
         imagePath = os.path.join(imagesPath, image)
         saveImagePath = saveFolder + "/" + imageName + "_utilization.jpg"
-        determineUtilization(parkingLocations, imagePath, saveImagePath)
+        detections = detect(imagePath)
+        calculateUtilizationRate(parkingLocations, detections, imagePath, saveImagePath)
 
-def determineUtilization(parkingLocations, imagePath, saveImagePath):
+def detect(imagePath):
     model = utility.load_model()
     img = Image.open(imagePath)
     detections = utility.detect(img, model)
     detections = utility.createArray(detections)
-    calculateUtilizationRate(parkingLocations, detections, imagePath, saveImagePath)
+    return detections
 
 def calculateUtilizationRate(parkingLocations, detections, imagePath, saveImagePath):
     spotFull = [False] * len(parkingLocations)
